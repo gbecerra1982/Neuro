@@ -1,105 +1,793 @@
-# Instructions to run Microsoft Azure TTS Talking Avatar sample code
+# 🏭 Avatar Factory - Production-Ready AI Avatar System
 
-## Pre-requisites
+<div align="center">
 
-* Follow [Text to speech quickstart](https://learn.microsoft.com/azure/ai-services/speech-service/get-started-text-to-speech?pivots=programming-language-python#set-up-the-environment) to set up the environment for running Speech SDK in python.
+![Avatar Factory](https://img.shields.io/badge/Avatar-Factory-blue?style=for-the-badge)
+![Version](https://img.shields.io/badge/Version-2.1.0-green?style=for-the-badge)
+![Python](https://img.shields.io/badge/Python-3.9+-yellow?style=for-the-badge)
+![Azure](https://img.shields.io/badge/Azure-OpenAI-blue?style=for-the-badge)
 
-### NOTA: Al incorporar nuevas tablas recordar agregar al schema.json!!
+**Transform your AI interactions with customizable, production-ready avatars powered by Azure OpenAI Realtime API and Azure Speech Services**
 
-## Basic Sample
+[Features](#features) • [Quick Start](#quick-start) • [Architecture](#architecture) • [Documentation](#documentation) • [Examples](#examples)
 
-This sample demonstrates the basic usage of Azure text-to-speech avatar real-time API.
+</div>
 
-* Step 1: Open a console and navigate to the folder containing this README.md document.
-    * Run `pip install -r requirements.txt` to install the required packages.
-    * Set below environment virables:
-        * `SPEECH_REGION` - the region of your Azure speech resource, e.g. westus2.
-        * `SPEECH_KEY` - the API key of your Azure speech resource.
-        * `SPEECH_PRIVATE_ENDPOINT` - the private endpoint of your Azure speech resource. e.g. https://my-speech-service.cognitiveservices.azure.com. This is optional, and only needed when you want to use private endpoint to access Azure speech service. This is optional, which is only needed when you are using custom endpoint.
-    * Set below environment virables if you want to use customized ICE server:
-        * `ICE_SERVER_URL` - the URL of your customized ICE server.
-        * `ICE_SERVER_URL_REMOTE` - the URL of your customized ICE server for remote side. This is only required when the ICE address for remote side is different from local side.
-        * `ICE_SERVER_USERNAME` - the username of your customized ICE server.
-        * `ICE_SERVER_PASSWORD` - the password of your customized ICE server.
-    * Run `python -m flask run -h 0.0.0.0 -p 5000` to start this sample.
+## 📋 Table of Contents
 
-* Step 2: Open a browser and navigate to `http://localhost:5000/chat` to view the web UI of this sample.
+- [Overview](#overview)
+- [Features](#features)
+- [Architecture](#architecture)
+- [Quick Start](#quick-start)
+- [Installation](#installation)
+- [Creating Avatars](#creating-avatars)
+- [Configuration](#configuration)
+- [API Reference](#api-reference)
+- [Deployment](#deployment)
+- [Examples](#examples)
+- [Contributing](#contributing)
 
-* Step 3: Fill or select below information:
-    * TTS Configuration
-        * TTS Voice - the voice of the TTS. Here is the [available TTS voices list](https://learn.microsoft.com/azure/ai-services/speech-service/language-support?tabs=tts#supported-languages)
-        * Custom Voice Deployment ID (Endpoint ID) - the deployment ID (also called endpoint ID) of your custom voice. If you are not using a custom voice, please leave it empty.
-        * Personal Voice Speaker Profile ID - the personal voice speaker profile ID of your personal voice. Please follow [here](https://learn.microsoft.com/azure/ai-services/speech-service/personal-voice-overview) to view and create personal voice.
-    * Avatar Configuration
-        * Avatar Character - The character of the avatar. By default it's `lisa`, and you can update this value to use a different avatar.
-        * Avatar Style - The style of the avatar. You can update this value to use a different avatar style. This parameter is optional for custom avatar.
-        * Background Color - The color of the avatar background.
-        * Background Image (URL) - The URL of the background image. If you want to have a background image for the avatar, please fill this field. You need first upload your image to a publicly accessbile place, with a public URL. e.g. https://samples-files.com/samples/Images/jpg/1920-1080-sample.jpg
-        * Custom Avatar - Check this if you are using a custom avatar.
-        * Transparent Background - Check this if you want to use transparent background for the avatar. When this is checked, the background color of the video stream from server side is automatically set to green(#00FF00FF), and the js code on client side (check the `makeBackgroundTransparent` function in main.js) will do the real-time matting by replacing the green color with transparent color.
-        * Video Crop - By checking this, you can crop the video stream from server side to a smaller size. This is useful when you want to put the avatar video into a customized rectangle area.
+## 🎯 Overview
 
-* Step 4: Click `Start Session` button to setup video connection with Azure TTS Talking Avatar service. If everything goes well, you should see a live video with an avatar being shown on the web page.
+Avatar Factory is a comprehensive system for creating and managing AI-powered avatars with real-time voice and visual interaction capabilities. Built on Azure's cutting-edge AI services, it provides a modular, scalable architecture for deploying custom AI assistants across various domains.
 
-* Step 5: Type some text in the `Spoken Text` text box and click `Speak` button to send the text to Azure TTS Talking Avatar service. The service will synthesize the text to talking avatar video, and send the video stream back to the browser. The browser will play the video stream. You should see the avatar speaking the text you typed with mouth movement, and hear the voice which is synchronized with the mouth movement.
+### Key Capabilities
 
-* Step 6: You can either continue to type text in the `Spoken Text` text box and let the avatar speak that text by clicking `Speak` button, or click `Stop Session` button to stop the video connection with Azure TTS Talking Avatar service. If you click `Stop Session` button, you can click `Start Session` button to start a new video connection with Azure TTS Talking Avatar service.
+- **🎭 Customizable Avatars**: Create unique AI personas with distinct personalities, voices, and appearances
+- **🔊 Real-time Voice Interaction**: Powered by Azure OpenAI Realtime API with natural speech synthesis
+- **🧠 RAG Integration**: Built-in Retrieval Augmented Generation for knowledge-based responses
+- **🔌 Plugin System**: Extensible architecture with SQL, tools, and custom plugin support
+- **🏗️ Factory Pattern**: Create new avatar instances in seconds from templates
+- **🚀 Production Ready**: Docker support, health checks, metrics, and monitoring
 
-## Chat Sample
+## ✨ Features
 
-This sample demonstrates the chat scenario, with integration of Azure speech-to-text, Azure OpenAI, and Azure text-to-speech avatar real-time API.
+### Core Features
 
-* Step 1: Open a console and navigate to the folder containing this README.md document.
-    * Run `pip install -r requirements.txt` to install the required packages.
-    * Set below environment virables:
-        * `SPEECH_REGION` - the region of your Azure speech resource, e.g. westus2.
-        * `SPEECH_KEY` - the API key of your Azure speech resource.
-        * `SPEECH_PRIVATE_ENDPOINT` - the private endpoint of your Azure speech resource. e.g. https://my-speech-service.cognitiveservices.azure.com. This is optional, and only needed when you want to use private endpoint to access Azure speech service. This is optional, which is only needed when you are using custom endpoint. For more information about private endpoint, please refer to [Enable private endpoint](https://learn.microsoft.com/azure/ai-services/speech-service/speech-services-private-link).
-        * `SPEECH_RESOURCE_URL` - the URL of your Azure speech resource, e.g. /subscriptions/6e83d8b7-00dd-4b0a-9e98-dab9f060418b/resourceGroups/my-resource-group/providers/Microsoft.CognitiveServices/accounts/my-speech-resource. To fetch the speech resource URL, go to your speech resource overview page on Azure portal, click `JSON View` link, and then copy the `Resource ID` value on the popped up page. This is optional, which is only needed when you want to use private endpoint to access Azure speech service.
-        * `USER_ASSIGNED_MANAGED_IDENTITY_CLIENT_ID` - the client ID of your user-assigned managed identity. This is optional, which is only needed when you want to use private endpoint with user-assigned managed identity to access Azure speech service. For more information about user-assigned managed identity, please refer to [Use a user-assigned managed identity](https://learn.microsoft.com/azure/active-directory/managed-identities-azure-resources/how-to-use-vm-token?tabs=azure-cli).
-        * `AZURE_OPENAI_ENDPOINT` - the endpoint of your Azure OpenAI resource, e.g. https://my-aoai.openai.azure.com/, which can be found in the `Keys and Endpoint` section of your Azure OpenAI resource in Azure portal.
-        * `AZURE_OPENAI_API_KEY` - the API key of your Azure OpenAI resource, which can be found in the `Keys and Endpoint` section of your Azure OpenAI resource in Azure portal.
-        * `AZURE_OPENAI_DEPLOYMENT_NAME` - the name of your Azure OpenAI model deployment, which can be found in the `Model deployments` section of your Azure OpenAI resource in Azure portal.
-    * Set below environment virables if you want to use your own data to constrain the chat:
-        * `COGNITIVE_SEARCH_ENDPOINT` - the endpoint of your Azure Cognitive Search resource, e.g. https://my-cognitive-search.search.windows.net/, which can be found in the `Overview` section of your Azure Cognitive Search resource in Azure portal, appearing at `Essentials -> Url` field.
-        * `COGNITIVE_SEARCH_API_KEY` - the API key of your Azure Cognitive Search resource, which can be found in the `Keys` section of your Azure Cognitive Search resource in Azure portal. Please make sure to use the `Admin Key` instead of `Query Key`.
-        * `COGNITIVE_SEARCH_INDEX_NAME` - the name of your Azure Cognitive Search index, which can be found in the `Indexes` section of your Azure Cognitive Search resource in Azure portal.
-    * Set below environment virables if you want to use customized ICE server:
-        * `ICE_SERVER_URL` - the URL of your customized ICE server.
-        * `ICE_SERVER_URL_REMOTE` - the URL of your customized ICE server for remote side. This is only required when the ICE address for remote side is different from local side.
-        * `ICE_SERVER_USERNAME` - the username of your customized ICE server.
-        * `ICE_SERVER_PASSWORD` - the password of your customized ICE server.
-    * Run `python -m flask run -h 0.0.0.0 -p 5000` to start this sample.
+- **Azure OpenAI Realtime API Integration**
+  - WebSocket-based real-time communication
+  - Server-side VAD (Voice Activity Detection)
+  - Automatic speech recognition and synthesis
+  - Function calling support
 
-* Step 2: Open a browser and navigate to `http://localhost:5000/chat` to view the web UI of this sample.
+- **Azure Speech Avatar Support**
+  - High-quality 3D avatars
+  - Lip-sync and facial expressions
+  - Multiple character styles
+  - Custom backgrounds
 
-* Step 3: Fill or select below information:
-    * Chat Configuration
-        * Azure OpenAI Deployment Name - the name of your Azure OpenAI model deployment, which can be found in the `Model deployments` section of your Azure OpenAI resource in Azure portal.
-        * System Prompt - you can edit this text to preset the context for the chat API. The chat API will then generate the response based on this context.
-        * Enable On Your Data - check this if you want to use your own data to constrain the chat. If you check this, you need to fill `Azure Cognitive Search Index Name` field below.
-        * Azure Cognitive Search Index Name - the name of your Azure Cognitive Search index, which can be found in the `Indexes` section of your Azure Cognitive Search resource in Azure portal.
-    * Speech Configuration
-        * STT Locale(s) - the locale(s) of the STT. Here is the [available STT languages list](https://learn.microsoft.com/azure/ai-services/speech-service/language-support?tabs=stt#supported-languages). If multiple locales are specified, the STT will enable multi-language recognition, which means the STT will recognize the speech in any of the specified locales.
-        * TTS Voice - the voice of the TTS. Here is the [available TTS voices list](https://learn.microsoft.com/azure/ai-services/speech-service/language-support?tabs=tts#supported-languages)
-        * Custom Voice Deployment ID (Endpoint ID) - the deployment ID (also called endpoint ID) of your custom voice. If you are not using a custom voice, please leave it empty.
-        * Personal Voice Speaker Profile ID - the personal voice speaker profile ID of your personal voice. Please follow [here](https://learn.microsoft.com/azure/ai-services/speech-service/personal-voice-overview) to view and create personal voice.
-        * Continuous Conversation - check this if you want to enable continuous conversation. If this is checked, the STT will keep listening to your speech, with microphone always on until you click `Stop Microphone` button. If this is not checked, the microphone will automatically stop once an utterance is recognized, and you need click `Start Microphone` every time before you give a speech. The `Continuous Conversation` mode is suitable for quiet environment, while the `Non-Continuous Conversation` mode is suitable for noisy environment, which can avoid the noise being recorded while you are not speaking.
-    * Avatar Configuration
-        * Avatar Character - The character of the avatar. By default it's `lisa`, and you can update this value to use a different avatar.
-        * Avatar Style - The style of the avatar. You can update this value to use a different avatar style. This parameter is optional for custom avatar.
-        * Custom Avatar - Check this if you are using a custom avatar.
-        * Auto Reconnect - Check this if you want to enable auto reconnect. If this is checked, the avatar video stream is automatically reconnected once the connection is lost.
-        * Use Local Video for Idle - Check this if you want to use local video for idle part. If this is checked, the avatar video stream is replaced by local video when the avatar is idle. To use this feature, you need to prepare a local video file. Usually, you can record a video of the avatar doing idle action. [Here](https://ttspublic.blob.core.windows.net/sampledata/video/avatar/lisa-casual-sitting-idle.mp4) is a sample video for lisa-casual-sitting avatar idle status. You can download it and put it to `video/lisa-casual-sitting-idle.mp4` under the same folder of `chat.html`.
+- **Modular Plugin System**
+  - RAG Plugin for knowledge base integration
+  - SQL Plugin for database queries
+  - Tools Plugin for custom functions
+  - Easy plugin development
 
-* Step 4: Click `Open Avatar Session` button to setup video connection with Azure TTS Talking Avatar service. If everything goes well, you should see a live video with an avatar being shown on the web page.
+- **Multi-Instance Management**
+  - Run multiple avatars simultaneously
+  - Instance isolation and configuration
+  - Dynamic loading and unloading
+  - Resource management
 
-* Step 5: Click `Start Microphone` button to start microphone (make sure to allow the microphone access tip box popping up in the browser), and then you can start chatting with the avatar with speech. The chat history (the text of what you said, and the response text by the Azure OpenAI chat API) will be shown beside the avatar. The avatar will then speak out the response of the chat API.
+### Technical Features
 
-# Additional Tip(s)
+- **WebRTC Support** for low-latency video/audio
+- **Socket.IO** for real-time bidirectional communication
+- **Automatic Reconnection** with exponential backoff
+- **Comprehensive Error Handling**
+- **Performance Metrics** and monitoring
+- **Docker Containerization**
+- **REST API** and WebSocket interfaces
 
-* If you want to enforce the avatar to stop speaking before the avatar finishes the utterance, you can click `Stop Speaking` button. This is useful when you want to interrupt the avatar speaking.
+## 🏗️ Architecture
 
-* If you want to clear the chat history and start a new round of chat, you can click `Clear Chat History` button. And if you want to stop the avatar service, please click `Close Avatar Session` button to close the connection with avatar service.
+```mermaid
+graph TB
+    subgraph "Client Layer"
+        WEB[Web Interface]
+        API_CLIENT[API Client]
+        MOBILE[Mobile App]
+    end
+    
+    subgraph "API Gateway"
+        FLASK[Flask API Server]
+        SOCKETIO[Socket.IO Server]
+        REST[REST Endpoints]
+    end
+    
+    subgraph "Core Engine"
+        AVATAR_ENGINE[Avatar Engine]
+        INSTANCE_MGR[Instance Manager]
+        FACTORY[Avatar Factory]
+    end
+    
+    subgraph "Components"
+        REALTIME[Realtime Proxy]
+        SPEECH[Speech Handler]
+        CONFIG[Config Manager]
+    end
+    
+    subgraph "Plugin System"
+        RAG[RAG Plugin]
+        SQL[SQL Plugin]
+        TOOLS[Tools Plugin]
+        CUSTOM[Custom Plugins]
+    end
+    
+    subgraph "Azure Services"
+        AOAI[Azure OpenAI<br/>Realtime API]
+        ASS[Azure Speech<br/>Services]
+        ACS[Azure Cognitive<br/>Search]
+    end
+    
+    subgraph "Data Layer"
+        KB[Knowledge Base]
+        DB[(Database)]
+        CACHE[Redis Cache]
+    end
+    
+    WEB --> FLASK
+    API_CLIENT --> REST
+    MOBILE --> SOCKETIO
+    
+    FLASK --> INSTANCE_MGR
+    SOCKETIO --> AVATAR_ENGINE
+    REST --> FACTORY
+    
+    AVATAR_ENGINE --> REALTIME
+    AVATAR_ENGINE --> SPEECH
+    AVATAR_ENGINE --> CONFIG
+    
+    AVATAR_ENGINE --> RAG
+    AVATAR_ENGINE --> SQL
+    AVATAR_ENGINE --> TOOLS
+    AVATAR_ENGINE --> CUSTOM
+    
+    REALTIME --> AOAI
+    SPEECH --> ASS
+    RAG --> ACS
+    RAG --> KB
+    SQL --> DB
+    
+    INSTANCE_MGR --> CACHE
+    
+    style AVATAR_ENGINE fill:#f96,stroke:#333,stroke-width:4px
+    style AOAI fill:#0078D4,stroke:#333,stroke-width:2px
+    style ASS fill:#0078D4,stroke:#333,stroke-width:2px
+    style ACS fill:#0078D4,stroke:#333,stroke-width:2px
+```
 
-* If you want to type your query message instead of speaking, you can check the `Type Message` checkbox, and then type your query message in the text box showing up below the checkbox.
+### Component Descriptions
+
+| Component | Description |
+|-----------|-------------|
+| **Avatar Engine** | Core orchestrator managing avatar lifecycle and communication |
+| **Instance Manager** | Handles multiple avatar instances and resource allocation |
+| **Avatar Factory** | Creates and configures new avatar instances from templates |
+| **Realtime Proxy** | WebSocket proxy for Azure OpenAI Realtime API |
+| **Speech Handler** | Manages Azure Speech Services for TTS and avatars |
+| **Plugin System** | Extensible plugin architecture for custom functionality |
+
+## 🚀 Quick Start
+
+### 1. Clone and Setup
+
+```bash
+# Clone the repository
+git clone https://github.com/your-org/avatar-factory.git
+cd avatar-factory
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Copy environment template
+cp .env-template .env
+```
+
+### 2. Configure Azure Services
+
+Edit `.env` with your Azure credentials:
+
+```env
+# Azure OpenAI
+AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com/
+AZURE_OPENAI_API_KEY=your-api-key
+AZURE_OPENAI_DEPLOYMENT=gpt-4o-realtime-preview
+
+# Azure Speech Services
+SPEECH_KEY=your-speech-key
+SPEECH_REGION=westus2
+
+# Azure Cognitive Search (optional)
+COGNITIVE_SEARCH_ENDPOINT=https://your-search.search.windows.net
+COGNITIVE_SEARCH_API_KEY=your-search-key
+```
+
+### 3. Create Your First Avatar
+
+```bash
+# Create a new avatar instance
+python scripts/create_instance.py --name my_assistant --template assistant
+
+# Start the server with your avatar
+python api/app.py --instance my_assistant
+
+# Access the interface
+# Open http://localhost:5000/instance/my_assistant
+```
+
+## 📦 Installation
+
+### Prerequisites
+
+- Python 3.9+
+- Azure OpenAI resource with Realtime API access
+- Azure Speech Services subscription
+- (Optional) Azure Cognitive Search for RAG
+
+### Standard Installation
+
+```bash
+# Clone repository
+git clone https://github.com/your-org/avatar-factory.git
+cd avatar-factory
+
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Setup environment
+cp .env-template .env
+# Edit .env with your credentials
+```
+
+### Docker Installation
+
+```bash
+# Build and run with Docker Compose
+cd docker
+docker-compose up -d
+
+# View logs
+docker-compose logs -f avatar-factory
+```
+
+## 🎭 Creating Avatars
+
+### Using the CLI
+
+```bash
+# Create from template
+python scripts/create_instance.py \
+    --name customer_service \
+    --template corporate \
+    --language en-US \
+    --description "Customer Service Representative"
+
+# List available templates
+python scripts/create_instance.py --list-templates
+```
+
+### Using the API
+
+```python
+from factory import AvatarFactory
+
+# Create from template
+avatar = AvatarFactory.create_from_template(
+    instance_name="sales_assistant",
+    template_name="corporate",
+    config_overrides={
+        "ui": {"theme": "professional"},
+        "features": {"rag": True}
+    }
+)
+
+# Initialize and start
+await avatar.initialize()
+await avatar.start_session()
+```
+
+### Available Templates
+
+| Template | Description | Use Case |
+|----------|-------------|----------|
+| **assistant** | General-purpose friendly assistant | Customer support, general queries |
+| **corporate** | Professional business assistant | Enterprise, B2B interactions |
+| **technical** | Technical support specialist | IT support, troubleshooting |
+
+## ⚙️ Configuration
+
+### Instance Configuration (`config.yaml`)
+
+```yaml
+instance:
+  name: "My Avatar"
+  version: "1.0.0"
+  environment: "production"
+
+azure:
+  openai:
+    endpoint: "${AZURE_OPENAI_ENDPOINT}"
+    api_key: "${AZURE_OPENAI_API_KEY}"
+    deployment: "gpt-4o-realtime-preview"
+  
+  speech:
+    key: "${SPEECH_KEY}"
+    region: "${SPEECH_REGION}"
+
+plugins:
+  - name: "rag_plugin"
+    config:
+      vector_store_type: "azure_search"
+      embedding_model: "text-embedding-3-large"
+  
+  - name: "sql_plugin"
+    config:
+      database: "postgresql"
+      read_only: true
+
+ui:
+  template: "corporate/interface.html"
+  theme: "professional"
+```
+
+### Persona Configuration (`persona.yaml`)
+
+```yaml
+name: "Professional Assistant"
+role: "Business Advisor"
+
+voice:
+  language: "en-US"
+  model: "en-US-AriaNeural"
+  pitch: "0Hz"
+  rate: 1.0
+
+avatar:
+  character: "lisa"
+  style: "professional-standing"
+  background_color: "#1E40AF"
+
+personality:
+  traits:
+    - "professional"
+    - "knowledgeable"
+    - "efficient"
+  tone: "formal"
+
+system_prompt: |
+  You are a professional business assistant.
+  Provide accurate and concise responses.
+  Maintain a formal but friendly tone.
+```
+
+## 🔌 Plugin Development
+
+### Creating a Custom Plugin
+
+```python
+# plugins/my_custom_plugin.py
+from plugins.base_plugin import BasePlugin
+
+class MyCustomPlugin(BasePlugin):
+    def initialize(self, config):
+        """Initialize plugin with configuration"""
+        self.config = config
+        # Setup your plugin
+        return True
+    
+    async def process(self, input_data):
+        """Process input and return response"""
+        # Your processing logic
+        response = await self.do_something(input_data)
+        return {
+            'content': response,
+            'metadata': {'plugin': self.name}
+        }
+    
+    async def cleanup(self):
+        """Clean up resources"""
+        pass
+```
+
+### Registering Custom Tools
+
+```python
+# instances/my_avatar/tools/custom_tools.py
+def register_tools(avatar):
+    """Register custom tools with avatar"""
+    
+    @avatar.register_tool("get_weather")
+    async def get_weather(location: str):
+        # Your implementation
+        return f"Weather in {location}: Sunny, 22°C"
+    
+    @avatar.register_tool("search_database")
+    async def search_database(query: str):
+        # Your implementation
+        return {"results": [...]}
+```
+
+## 📡 API Reference
+
+### REST Endpoints
+
+#### Instance Management
+
+```http
+GET /api/instances
+# List all avatar instances
+
+POST /api/instances/create
+# Create new instance
+{
+  "name": "my_avatar",
+  "template": "assistant",
+  "config": {...}
+}
+
+POST /api/instances/{name}/start
+# Start an instance
+
+POST /api/instances/{name}/stop
+# Stop an instance
+
+GET /api/instances/{name}/status
+# Get instance status
+
+DELETE /api/instances/{name}
+# Delete an instance
+```
+
+#### Session Management
+
+```http
+POST /api/instances/{name}/session/start
+# Start a session
+{
+  "session_id": "optional-session-id"
+}
+
+POST /api/instances/{name}/session/stop
+# Stop current session
+
+POST /api/instances/{name}/message
+# Send message to avatar
+{
+  "type": "text",
+  "content": "Hello, how can you help?"
+}
+```
+
+### WebSocket Events
+
+```javascript
+// Connect to Socket.IO
+const socket = io('http://localhost:5000', {
+    query: { instance: 'my_avatar' }
+});
+
+// Start session
+socket.emit('start_session', {
+    instance: 'my_avatar',
+    session_id: 'unique-session-id'
+});
+
+// Send message
+socket.emit('message', {
+    instance: 'my_avatar',
+    message: {
+        type: 'text',
+        content: 'Hello!'
+    }
+});
+
+// Listen for responses
+socket.on('response', (data) => {
+    console.log('Avatar response:', data);
+});
+```
+
+## 🚢 Deployment
+
+### Docker Deployment
+
+```bash
+# Build image
+docker build -f docker/Dockerfile -t avatar-factory .
+
+# Run with environment variables
+docker run -d \
+  --name avatar-factory \
+  -p 5000:5000 \
+  --env-file .env \
+  avatar-factory
+
+# Using Docker Compose
+cd docker
+docker-compose up -d
+```
+
+### Kubernetes Deployment
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: avatar-factory
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: avatar-factory
+  template:
+    metadata:
+      labels:
+        app: avatar-factory
+    spec:
+      containers:
+      - name: avatar-factory
+        image: avatar-factory:latest
+        ports:
+        - containerPort: 5000
+        env:
+        - name: AZURE_OPENAI_ENDPOINT
+          valueFrom:
+            secretKeyRef:
+              name: azure-secrets
+              key: openai-endpoint
+```
+
+### Azure Container Instances
+
+```bash
+# Deploy to Azure Container Instances
+az container create \
+  --resource-group myResourceGroup \
+  --name avatar-factory \
+  --image avatar-factory:latest \
+  --dns-name-label avatar-factory \
+  --ports 5000 \
+  --environment-variables \
+    AZURE_OPENAI_ENDPOINT=$AZURE_OPENAI_ENDPOINT \
+    AZURE_OPENAI_API_KEY=$AZURE_OPENAI_API_KEY
+```
+
+## 📚 Examples
+
+### Example 1: Customer Service Avatar
+
+```python
+# Create customer service avatar
+from factory import AvatarFactory
+
+avatar = AvatarFactory.create_from_template(
+    instance_name="customer_service",
+    template_name="corporate"
+)
+
+# Customize persona
+avatar.persona.update_config({
+    'system_prompt': """
+    You are a customer service representative for ACME Corp.
+    Be helpful, empathetic, and professional.
+    Always try to resolve customer issues.
+    """,
+    'voice': {
+        'language': 'en-US',
+        'model': 'en-US-JennyNeural',
+        'style': 'customerservice'
+    }
+})
+
+# Add customer database access
+avatar.register_tool('lookup_customer', customer_lookup_function)
+
+# Start serving
+await avatar.initialize()
+await avatar.start_session()
+```
+
+### Example 2: Technical Support with RAG
+
+```python
+# Setup technical support with knowledge base
+from factory import AvatarFactory
+from plugins import RAGPlugin
+
+# Create instance
+avatar = AvatarFactory.create_avatar("tech_support")
+
+# Configure RAG plugin
+rag_plugin = RAGPlugin()
+rag_plugin.initialize({
+    'vector_store_type': 'azure_search',
+    'knowledge_base_path': 'knowledge/technical_docs'
+})
+
+# Register plugin
+avatar.plugins['rag'] = rag_plugin
+
+# Load documentation
+await rag_plugin.add_document({
+    'content': open('docs/troubleshooting.md').read(),
+    'metadata': {'type': 'troubleshooting'}
+})
+
+# Start
+await avatar.initialize()
+```
+
+### Example 3: Multi-lingual Avatar
+
+```python
+# Create multi-lingual avatar
+languages = {
+    'en': 'en-US-AriaNeural',
+    'es': 'es-ES-ElviraNeural',
+    'fr': 'fr-FR-DeniseNeural'
+}
+
+avatar = AvatarFactory.create_avatar("multilingual")
+
+# Language detection and switching
+async def process_with_language_detection(message):
+    detected_lang = detect_language(message)
+    avatar.speech_handler.update_voice(languages[detected_lang])
+    return await avatar.process_message(message)
+```
+
+## 🔧 Advanced Configuration
+
+### Custom Vector Store
+
+```python
+# Implement custom vector store
+class CustomVectorStore:
+    def __init__(self, config):
+        self.config = config
+    
+    async def add(self, documents):
+        # Your implementation
+        pass
+    
+    async def search(self, query, top_k=5):
+        # Your implementation
+        pass
+
+# Register with RAG plugin
+rag_plugin.vector_store = CustomVectorStore(config)
+```
+
+### Custom Authentication
+
+```python
+# Add authentication middleware
+from functools import wraps
+from flask import request, jsonify
+
+def require_api_key(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        api_key = request.headers.get('X-API-Key')
+        if not api_key or not validate_api_key(api_key):
+            return jsonify({'error': 'Invalid API key'}), 401
+        return f(*args, **kwargs)
+    return decorated_function
+
+# Apply to routes
+@app.route('/api/protected')
+@require_api_key
+def protected_endpoint():
+    return jsonify({'data': 'sensitive'})
+```
+
+## 📊 Monitoring and Metrics
+
+### Prometheus Metrics
+
+```python
+# Enable Prometheus metrics
+from prometheus_client import Counter, Histogram, generate_latest
+
+# Define metrics
+message_counter = Counter('avatar_messages_total', 'Total messages processed')
+response_time = Histogram('avatar_response_seconds', 'Response time')
+
+# Expose metrics endpoint
+@app.route('/metrics')
+def metrics():
+    return generate_latest()
+```
+
+### Health Checks
+
+```python
+# Comprehensive health check
+@app.route('/api/health/detailed')
+def detailed_health():
+    return jsonify({
+        'status': 'healthy',
+        'checks': {
+            'database': check_database(),
+            'azure_openai': check_azure_openai(),
+            'speech_services': check_speech_services(),
+            'redis': check_redis()
+        },
+        'metrics': {
+            'active_sessions': get_active_sessions(),
+            'memory_usage': get_memory_usage(),
+            'cpu_usage': get_cpu_usage()
+        }
+    })
+```
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+| Issue | Solution |
+|-------|----------|
+| **SDK Load Failed** | Ensure Azure Speech SDK CDN is accessible or use local fallback |
+| **CORS Errors** | Configure CORS_ORIGINS in .env with your domain |
+| **Avatar Not Showing** | Check WebRTC connection and ICE server configuration |
+| **High Latency** | Use regional Azure endpoints closer to users |
+| **Session Timeout** | Adjust MAX_SESSION_DURATION in configuration |
+
+### Debug Mode
+
+```bash
+# Run with debug logging
+LOG_LEVEL=DEBUG python api/app.py --debug
+
+# Enable detailed Azure SDK logging
+export AZURE_LOG_LEVEL=DEBUG
+```
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+
+### Development Setup
+
+```bash
+# Clone and setup development environment
+git clone https://github.com/your-org/avatar-factory.git
+cd avatar-factory
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements-dev.txt
+
+# Run tests
+pytest tests/
+
+# Run linting
+flake8 .
+black .
+```
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Azure OpenAI team for the Realtime API
+- Azure Speech Services team for Avatar technology
+- Open source community for invaluable contributions
+
+## 📞 Support
+
+- 📧 Email: support@avatarfactory.ai
+- 💬 Discord: [Join our community](https://discord.gg/avatarfactory)
+- 📚 Documentation: [docs.avatarfactory.ai](https://docs.avatarfactory.ai)
+- 🐛 Issues: [GitHub Issues](https://github.com/your-org/avatar-factory/issues)
+
+---
+
+<div align="center">
+Built with ❤️ by the Avatar Factory Team
+</div>

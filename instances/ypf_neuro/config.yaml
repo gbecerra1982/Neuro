@@ -1,0 +1,130 @@
+# YPF Neuro Avatar Instance Configuration
+
+instance:
+  name: "YPF Neuro Assistant"
+  version: "2.1.0"
+  environment: "production"
+  template: "technical"
+
+azure:
+  openai:
+    endpoint: "${AZURE_OPENAI_ENDPOINT}"
+    api_key: "${AZURE_OPENAI_API_KEY}"
+    deployment: "${AZURE_OPENAI_DEPLOYMENT:gpt-4o-realtime-preview}"
+    api_version: "${AZURE_OPENAI_API_VERSION:2025-04-01-preview}"
+    model: "${AZURE_OPENAI_MODEL:gpt-4o-realtime-preview}"
+    provider: "azure_openai"
+
+  speech:
+    key: "${SPEECH_KEY}"
+    region: "${SPEECH_REGION}"
+    endpoint: "${SPEECH_ENDPOINT}"
+    private_endpoint: "${SPEECH_PRIVATE_ENDPOINT}"
+
+  cognitive_search:
+    endpoint: "${COGNITIVE_SEARCH_ENDPOINT}"
+    api_key: "${COGNITIVE_SEARCH_API_KEY}"
+    index: "${COGNITIVE_SEARCH_INDEX_NAME:pywo-idx}"
+    use_semantic: true
+    approach: "hybrid"
+
+plugins:
+  - name: "rag_plugin"
+    config:
+      vector_store_type: "azure_search"
+      azure_search_endpoint: "${COGNITIVE_SEARCH_ENDPOINT}"
+      azure_search_key: "${COGNITIVE_SEARCH_API_KEY}"
+      azure_search_index: "pywo-idx"
+      embedding_model: "${AZURE_OPENAI_EMBEDDING_MODEL:text-embedding-3-large}"
+      chunk_size: 1000
+      chunk_overlap: 200
+      top_k: 5
+      knowledge_base_path: "instances/ypf_neuro/knowledge_base"
+
+  - name: "sql_plugin"
+    config:
+      database: "teradata"
+      host: "${TD_HOST}"
+      user: "${TD_USER}"
+      password: "${TERADATA_PASS}"
+      logmech: "${LOGMECH:LDAP}"
+      schemas: ["dbo", "pywo"]
+      read_only: false
+      max_results: 1000
+      timeout: 30
+
+  - name: "tools_plugin"
+    config:
+      enabled_tools:
+        - "corva_call"
+        - "equipment_query"
+        - "well_information"
+        - "cost_analysis"
+        - "production_metrics"
+      max_execution_time: 30
+      allow_parallel: true
+
+ui:
+  template: "templates/voice_live_interface.html"
+  theme: "ypf_corporate"
+  branding:
+    logo: "static/images/ypf_logo.png"
+    colors:
+      primary: "#007AFF"
+      secondary: "#FF6B35"
+      background: "#0a1428"
+  features:
+    avatar: true
+    voice: true
+    chat: true
+    metrics: true
+    debug: true
+
+performance:
+  enable_metrics: true
+  enable_detailed_logging: false
+  max_session_duration: 3600
+  session_cleanup_interval: 300
+  buffer_size: 4096
+  latency_hint: "interactive"
+  preload_avatar: true
+  cache_responses: true
+  enable_compression: true
+
+features:
+  minipywo: true
+  function_calling: true
+  streaming: true
+  interruptions: true
+  background_blur: false
+  noise_reduction: true
+  auto_reconnect: true
+  realtime_proxy: true
+
+text_corrections:
+  file: "config/text_corrections.json"
+  enabled: true
+
+ice_servers:
+  - urls: "${ICE_SERVER_URL}"
+    username: "${ICE_SERVER_USERNAME}"
+    credential: "${ICE_SERVER_PASSWORD}"
+  - urls: "stun:stun.l.google.com:19302"
+  - urls: "stun:stun1.l.google.com:19302"
+
+webrtc:
+  max_bitrate: "${WEBRTC_MAX_BITRATE:3000000}"
+  min_bitrate: "${WEBRTC_MIN_BITRATE:500000}"
+  enable_echo_cancellation: true
+  enable_noise_suppression: true
+  enable_auto_gain_control: true
+  ice_transport_policy: "all"
+  bundle_policy: "max-bundle"
+  rtcp_mux_policy: "require"
+  sdp_semantics: "unified-plan"
+
+monitoring:
+  health_check_interval: 60
+  metrics_collection: true
+  error_reporting: true
+  performance_tracking: true

@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  avatar-factory:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: avatar-factory
+    ports:
+      - "5000:5000"
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - AZURE_OPENAI_ENDPOINT=${AZURE_OPENAI_ENDPOINT}
+      - AZURE_OPENAI_API_KEY=${AZURE_OPENAI_API_KEY}
+      - SPEECH_KEY=${SPEECH_KEY}
+      - SPEECH_REGION=${SPEECH_REGION}
+      - COGNITIVE_SEARCH_ENDPOINT=${COGNITIVE_SEARCH_ENDPOINT}
+      - COGNITIVE_SEARCH_API_KEY=${COGNITIVE_SEARCH_API_KEY}
+    volumes:
+      - ../instances:/app/instances
+      - ../data:/app/data
+      - ../exports:/app/exports
+      - ../logs:/app/logs
+    networks:
+      - avatar-network
+    restart: unless-stopped
+
+  redis:
+    image: redis:alpine
+    container_name: avatar-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - avatar-network
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:14-alpine
+    container_name: avatar-postgres
+    environment:
+      - POSTGRES_DB=avatar_factory
+      - POSTGRES_USER=${POSTGRES_USER:-avatar}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-avatar_pass}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - avatar-network
+    restart: unless-stopped
+
+networks:
+  avatar-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
